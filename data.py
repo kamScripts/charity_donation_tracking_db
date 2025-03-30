@@ -1,19 +1,25 @@
 tables = {
-    "event" : """
-        event_id INTEGER PRIMARY KEY AUTOINCREMENT",
-        event_name TEXT,
-        location_postcode TEXT,
-        event_cost" REAL,
-        start_date_time TEXT,
-        end_date_time TEXT,
-        project_id INTEGER,
-        FOREIGN KEY (project_id)
-            REFERENCES project(project_id)
+    "organization" : """
+        organization_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        organization_name TEXT NOT NULL,
+        postcode TEXT NOT NULL,
+        contact_person TEXT NOT NULL
+    """,
+    "donor" : """
+        donor_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        first_name TEXT,
+        last_name TEXT,
+        phone_number TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        donor_type TEXT NOT NULL,
+        organization_id INTEGER,
+        FOREIGN KEY(organization_id)
+            REFERENCES organization(organization_id)
     """,
     "project" : """
-        project_id: [INTEGER PRIMARY KEY AUTOINCREMENT],
+        project_id INTEGER PRIMARY KEY AUTOINCREMENT,
         project_name TEXT NOT NULL,
-        amount_goal REAL NOT NULL,  
+        amount_goal REAL NOT NULL
     """,
     "objective" : """
         objective_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,27 +27,18 @@ tables = {
         cost REAL,
         description TEXT
     """,
-    "project_objectives" : """
-        project_and_objective_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        project_id INTEGER FOREIGN KEY(project),
-        objective_id INTEGER FOREIGN KEY(objective),
+    "event" : """
+        event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_name TEXT,
+        location_postcode TEXT,
+        event_cost REAL,
+        start_date_time TEXT,
+        end_date_time TEXT,
+        project_id INTEGER,
         FOREIGN KEY (project_id)
-            REFERENCES project(project_id),
-        FOREIGN KEY (objective_id)
-            REFERENCES objective(objective_id)
+            REFERENCES project(project_id)
     """,
-    "donor" : """
-        donor_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        first_name TEXT ,
-        last_name TEXT ,
-        phone_number TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        donor_type TEXT NOT NULL,
-        organization_id INTEGER,
-        FOREIGN KEY(organization)
-            REFERENCES organization(organization_id)
-    """,
-   "donation" : """
+    "donation" : """
         donation_ID INTEGER PRIMARY KEY AUTOINCREMENT,
         amount REAL NOT NULL,
         source TEXT NOT NULL,
@@ -53,7 +50,16 @@ tables = {
                 ON UPDATE RESTRICT
                 ON DELETE RESTRICT,
         FOREIGN KEY (event_id)
-            REFERENCES Event(event_id)
+            REFERENCES event(event_id)
+    """,
+    "project_objectives" : """
+        project_and_objective_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        project_id INTEGER,
+        objective_id INTEGER,
+        FOREIGN KEY (project_id)
+            REFERENCES project(project_id),
+        FOREIGN KEY (objective_id)
+            REFERENCES objective(objective_id)
     """,
     "donation_allocation" : """
         donation_allocation_ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,18 +71,12 @@ tables = {
         FOREIGN KEY (donation_Id)
             REFERENCES donation(donation_ID)
     """,
-    "organization" : """
-        organization_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        organization_name TEXT NOT NULL,
-        postcode TEXT NOT NULL,
-        contact_person TEXT NOT NULL
-    """,
     "donor_details" : """
         donor_details_ID INTEGER PRIMARY KEY AUTOINCREMENT,
         postcode TEXT NOT NULL,
         house_no INTEGER,
-        donor_id" INTEGER,
-        FOREIGN KEY(donor)
-            REFERENCES donor(donor_id)
+        donor_id INTEGER,
+        FOREIGN KEY(donor_id)
+            REFERENCES donor(donor_ID)
     """,
 }
