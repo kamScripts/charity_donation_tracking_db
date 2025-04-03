@@ -22,39 +22,17 @@ tables = {
         FOREIGN KEY(city_id)
         REFERENCES city(city_id)
     """,
-    
-    "organization" : """
-        organization_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        organization_name TEXT NOT NULL,
-        location_id INTEGER,
-        FOREIGN KEY(location_id)
-        REFERENCES location(location_id)
-    """,
-    
-    "contact" : """
-        contact_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        phone_number TEXT,
-        email TEXT,
-        organization_id INTEGER,
-        FOREIGN KEY(organization_id)
-        REFERENCES organization(organization_id)
-    """,
-    
+
     "donor" : """
         donor_id INTEGER PRIMARY KEY AUTOINCREMENT,
         first_name TEXT,
         last_name TEXT,
         phone_number TEXT UNIQUE,
         email TEXT UNIQUE,
-        donor_type TEXT NOT NULL,
         location_id INTEGER,
-        organization_id INTEGER,
+        organization_name TEXT,
         FOREIGN KEY(location_id)
-        REFERENCES location(location_id),
-        FOREIGN KEY(organization_id)
-        REFERENCES organization(organization_id)
+        REFERENCES location(location_id)
     """,
     
     "project" : """
@@ -97,10 +75,10 @@ tables = {
         event_id INTEGER,
         FOREIGN KEY(donor_id)
         REFERENCES donor(donor_id)
-        ON DELETE RESTRICT,
+            ON DELETE RESTRICT,
         FOREIGN KEY(event_id)
         REFERENCES event(event_id)
-        ON DELETE RESTRICT
+            ON DELETE RESTRICT
     """,
 
     "donation_allocation" : """
@@ -110,7 +88,7 @@ tables = {
         objective_id INTEGER,
         FOREIGN KEY(donation_id)
         REFERENCES donation(donation_id)
-        ON DELETE CASCADE,
+            ON DELETE CASCADE,
         FOREIGN KEY(objective_id)
         REFERENCES objective(objective_id)
     """
@@ -129,3 +107,21 @@ uk_regions = {
     "Wales": ["Cardiff", "Swansea", "Newport"],
     "Northern Ireland": ["Belfast", "Londonderry", "Newry"]
 }
+projects = [
+    ("Fight cancer", 500000.00),
+    ("Renew Library", 80000.00),
+]
+objectives = [
+    ("Buy hospital equipment", 120000.00, "New scanning technology", 1),
+    ("Sponsor free checks", 30000.00, "Free scanning for people", 1),
+    ("Increase cancer awareness", 25000.00, "advertisements", 1),
+    ("Expand storage", 180000.00, "Add new shelving", 2),
+    ("Provide laptops", 100000.00, "Laptops for students", 2)
+]
+events = [
+    ("Great Run for cancer", 1, 1000.00, "2025-06-15 10:00:00", "2025-06-15 14:00:00", 1),
+    ("Cooking Competition", 2, 2000.00, "2025-07-01 09:00:00", "2025-07-01 17:00:00", 1),
+    ("Charity Dinner", 3, 3000.00, "2025-08-20 08:00:00", "2025-08-20 16:00:00", 1),
+    ("Charity Dinner", 4, 5000.00, "2025-09-10 19:00:00", "2025-09-10 23:00:00", 2),
+    ("Tech Workshop", 5, 4000.00, "2025-10-05 10:00:00", "2025-10-05 16:00:00", 2)
+]

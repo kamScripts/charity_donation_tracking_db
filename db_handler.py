@@ -25,15 +25,27 @@ class Db_handler:
         return [column[1] for column in table_info.fetchall()[1:]]
     
     def insert_row(self, table, values):
-        placeholders = ','.join(['?' for _ in enumerate(self.get_column_names(table))])
-        query = f'INSERT INTO {table}({",".join(self.get_column_names(table))}) VALUES({placeholders});'
-        self.cursor.execute(query, values)
-        self.connection.commit()
-        print(values, ' inserted')
+        placeholders = ', '.join(['?' for _ in enumerate(self.get_column_names(table))])
+        query = f'INSERT INTO {table}({", ".join(self.get_column_names(table))}) VALUES({placeholders});'
+        print(query)
+        try:
+            self.cursor.execute(query, values)
+            self.connection.commit()
+            print(values, ' inserted')
+        except sqlite3.OperationalError as e:
+            print(e)
+        except sqlite3.IntegrityError as e:
+            print(e)
         
     def insert_many(self, table, data):
         placeholders = ','.join(['?' for _ in enumerate(self.get_column_names(table))])
-        query = f'INSERT INTO {table}({",".join(self.get_column_names(table))}) VALUES({placeholders});'
-        self.cursor.executemany(query, data)        
-        self.connection.commit()
-        
+        query = f'INSERT INTO {table}({", ".join(self.get_column_names(table))}) VALUES({placeholders});'
+        print(query)
+        try:
+            self.cursor.executemany(query, data)
+            self.connection.commit()
+            print('dataset inserted successfully')
+        except sqlite3.OperationalError as e:
+            print(e)
+        except sqlite3.IntegrityError as e:
+            print(e)
