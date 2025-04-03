@@ -19,7 +19,7 @@ class Db_handler:
         results = self.cursor.execute('SELECT DISTINCT tbl_name FROM sqlite_schema WHERE tbl_name != "sqlite_sequence";')        
         return results.fetchall()
     
-    def get_column_names(self, table):        
+    def get_column_names(self, table):
         table_info = self.cursor.execute(f'PRAGMA table_info({table})')
         #use slicing to remove ID column
         return [column[1] for column in table_info.fetchall()[1:]]
@@ -31,7 +31,7 @@ class Db_handler:
         try:
             self.cursor.execute(query, values)
             self.connection.commit()
-            print(values, ' inserted')
+            print(f'{values} inserted successfully into {table}')
         except sqlite3.OperationalError as e:
             print(e)
         except sqlite3.IntegrityError as e:
@@ -40,12 +40,12 @@ class Db_handler:
     def insert_many(self, table, data):
         placeholders = ','.join(['?' for _ in enumerate(self.get_column_names(table))])
         query = f'INSERT INTO {table}({", ".join(self.get_column_names(table))}) VALUES({placeholders});'
-        print(query)
+        
         try:
             self.cursor.executemany(query, data)
             self.connection.commit()
-            print('dataset inserted successfully')
+            print(f'dataset inserted successfully into {table}')
         except sqlite3.OperationalError as e:
             print(e)
         except sqlite3.IntegrityError as e:
-            print(e)
+            print(e,f'while inserting into {table}')

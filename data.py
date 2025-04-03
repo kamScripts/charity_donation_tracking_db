@@ -44,7 +44,6 @@ tables = {
     "objective" : """
         objective_id INTEGER PRIMARY KEY AUTOINCREMENT,
         objective_name TEXT NOT NULL,
-        cost REAL,
         description TEXT,
         project_id INTEGER,
         FOREIGN KEY(project_id)
@@ -56,8 +55,7 @@ tables = {
         event_name TEXT NOT NULL,
         location_id INTEGER,
         event_cost REAL,
-        start_date_time TEXT NOT NULL,
-        end_date_time TEXT,
+        event_date TEXT NOT NULL,
         project_id INTEGER,
         FOREIGN KEY(location_id)
         REFERENCES location(location_id),
@@ -107,21 +105,4 @@ uk_regions = {
     "Wales": ["Cardiff", "Swansea", "Newport"],
     "Northern Ireland": ["Belfast", "Londonderry", "Newry"]
 }
-projects = [
-    ("Fight cancer", 500000.00),
-    ("Renew Library", 80000.00),
-]
-objectives = [
-    ("Buy hospital equipment", 120000.00, "New scanning technology", 1),
-    ("Sponsor free checks", 30000.00, "Free scanning for people", 1),
-    ("Increase cancer awareness", 25000.00, "advertisements", 1),
-    ("Expand storage", 180000.00, "Add new shelving", 2),
-    ("Provide laptops", 100000.00, "Laptops for students", 2)
-]
-events = [
-    ("Great Run for cancer", 1, 1000.00, "2025-06-15 10:00:00", "2025-06-15 14:00:00", 1),
-    ("Cooking Competition", 2, 2000.00, "2025-07-01 09:00:00", "2025-07-01 17:00:00", 1),
-    ("Charity Dinner", 3, 3000.00, "2025-08-20 08:00:00", "2025-08-20 16:00:00", 1),
-    ("Charity Dinner", 4, 5000.00, "2025-09-10 19:00:00", "2025-09-10 23:00:00", 2),
-    ("Tech Workshop", 5, 4000.00, "2025-10-05 10:00:00", "2025-10-05 16:00:00", 2)
-]
+
