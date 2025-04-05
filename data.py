@@ -80,7 +80,7 @@ tables = {
     """,
 
     "donation_allocation" : """
-        allocation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        donation_allocation_id INTEGER PRIMARY KEY AUTOINCREMENT,
         allocation_amount REAL NOT NULL,
         donation_id INTEGER,
         objective_id INTEGER,
