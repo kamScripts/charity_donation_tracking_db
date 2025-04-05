@@ -21,6 +21,9 @@ db = Db_handler("charity.db")
 #db.insert_many('donor', organization_donors)
 #db.insert_many('donation', donations)
 
-print(db.get_table_names())
-print(db.get_by_id('donor', 1))
-print(db.get_by_column_value('donor', 'first_name', 'Jasmine'))
+#print(db.get_table_names())
+#print(db.get_by_id('donor', 1))
+#print(db.get_by_column_value('donor', 'first_name', 'Jasmine'))
+print(db.get_all_related_data('donor'))
+
+

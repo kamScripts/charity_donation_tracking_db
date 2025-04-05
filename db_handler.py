@@ -57,7 +57,23 @@ class Db_handler:
             val = data
 
         return val
-    
+    def add_join_string(self, table):
+        join_string = ''
+        fk_list = self.cursor.execute(f"PRAGMA foreign_key_list({table});").fetchall()
+        if fk_list:
+            for fk in fk_list:
+                # fk[2] is the parent table, fk[4] is the parent column, fk[3] is the child column
+                join_clause = f' LEFT JOIN {fk[2]} ON {fk[2]}.{fk[4]}={table}.{fk[3]}'
+                join_string += join_clause
+                # Recursively add join strings for the parent table and append the result
+                join_string += self.add_join_string(fk[2])
+        return join_string
+    def get_all_related_data(self, table):
+        query = f'SELECT * FROM {table}'
+        query += self.add_join_string(table)
+        self.cursor.execute(query)
+        return self.cursor.fetchone()
+            
     def insert_row(self, table, values):
         columns = self.get_column_names(table)[1:]
         placeholders = ', '.join(['?' for _ in enumerate(columns)])
