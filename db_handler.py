@@ -98,19 +98,15 @@ class Db_handler:
                 
         return data
     
-    def get_all_related_data(self, table, columns='*'):
+    def get_all_related_data(self, table):
         data = self.add_join_string(table)
         #filter non id columns
-        filtered = [col for col in columns if 'id' not in col.lower()]
-        if isinstance(columns, list):
-            columns = ','.join(columns)
+        filtered = [col for col in data['column_names'] if 'id' not in col]
         query = f'SELECT {",".join(filtered)} FROM {table}'
 
         query += data['join_string']
         self.cursor.execute(query)
-
-
-        return pandas.DataFrame(self.cursor.fetchall(), filtered)
+        return pandas.DataFrame(self.cursor.fetchall(), columns=filtered)
             
     def insert_row(self, table, values):
         columns = self.get_column_names(table)[1:]
