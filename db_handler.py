@@ -103,7 +103,6 @@ class Db_handler(Db_basic):
         columns = self.get_column_names(table)[1:]
         placeholders = ', '.join(['?' for _ in enumerate(columns)])
         query = f'INSERT INTO {table}({", ".join(columns)}) VALUES({placeholders});'
-        print(query)
         try:
             self.cursor.execute(query, values)
             self.connection.commit()

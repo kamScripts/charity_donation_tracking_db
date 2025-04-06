@@ -143,9 +143,23 @@ class Db_basic:
     
     def delete_record(self, table, record_id):
         row_to_delete = self.get_by_id(table, record_id)
-        self.cursor.execute(f'DELETE FROM {table} WHERE {table}_id = ?', (record_id,))
+        try:
+            self.cursor.execute(f'DELETE FROM {table} WHERE {table}_id = ?', (record_id,))
+            self.connection.commit()
+            print( row_to_delete, ' removed from the table')
+        except sqlite3.Error as e:
+            print(e)
+    def delete_donor(self, donor_id):
+        print(type(donor_id))
+        self.cursor.execute(f'DELETE FROM donation WHERE donor_id = ?', (donor_id,))
         self.connection.commit()
-        print( row_to_delete, ' removed from the table')
+        self.cursor.execute(f'DELETE FROM donor WHERE donor_id=?', (donor_id,))
+        self.connection.commit()
+        print('Donor and all related donations removed')
+    def delete_event(self, event_id):
         
-    
-    
+        self.cursor.execute(f'DELETE FROM donation WHERE event_id = ?', (event_id,))
+        self.connection.commit()
+        self.cursor.execute(f'DELETE FROM event WHERE event_id=?', (event_id,))
+        self.connection.commit()
+        print('Event and all related donations removed')

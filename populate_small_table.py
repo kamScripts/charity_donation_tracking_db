@@ -45,6 +45,7 @@ sample_data = {
         (500.00, "Credit Card", "2025-01-10", "Monthly supporter", 1, None),
         (500.00, "Credit Card", "2025-02-10", "Monthly supporter", 1, None),
         (1000.00, "Check", "2025-04-15", "At gala event", 1, 1),
+        (500.00, "Credit Card", "2025-06-10", "Monthly supporter", 1, None),
         (750.00, "Mobile App", "2025-07-20", "Summer event donation", 1, 2),
         
         # Jane Doe's donations (5)
