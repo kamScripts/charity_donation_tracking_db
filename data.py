@@ -1,4 +1,21 @@
 tables = {
+    "donation" : """
+        donation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        amount REAL NOT NULL,
+        source TEXT NOT NULL,
+        donation_date TEXT NOT NULL,
+        notes TEXT,
+        donor_id INTEGER,
+        event_id INTEGER,
+        FOREIGN KEY(donor_id)
+        REFERENCES donor(donor_id)
+            ON UPDATE RESTRICT
+            ON DELETE RESTRICT,
+        FOREIGN KEY(event_id)
+        REFERENCES event(event_id)
+            ON UPDATE RESTRICT
+            ON DELETE RESTRICT
+    """,
     "region" : """
         region_id INTEGER PRIMARY KEY AUTOINCREMENT,
         region_name TEXT NOT NULL UNIQUE
@@ -63,22 +80,6 @@ tables = {
         REFERENCES project(project_id)
     """,
 
-    "donation" : """
-        donation_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        amount REAL NOT NULL,
-        source TEXT NOT NULL,
-        donation_date TEXT NOT NULL,
-        notes TEXT,
-        donor_id INTEGER,
-        event_id INTEGER,
-        FOREIGN KEY(donor_id)
-        REFERENCES donor(donor_id)
-            ON DELETE RESTRICT,
-        FOREIGN KEY(event_id)
-        REFERENCES event(event_id)
-            ON DELETE RESTRICT
-    """,
-
     "donation_allocation" : """
         donation_allocation_id INTEGER PRIMARY KEY AUTOINCREMENT,
         allocation_amount REAL NOT NULL,
@@ -86,6 +87,7 @@ tables = {
         objective_id INTEGER,
         FOREIGN KEY(donation_id)
         REFERENCES donation(donation_id)
+            ON UPDATE CASCADE
             ON DELETE CASCADE,
         FOREIGN KEY(objective_id)
         REFERENCES objective(objective_id)

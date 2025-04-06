@@ -28,28 +28,78 @@ class Db_handler(Db_basic):
             val = data
 
         return val
-    
-    def get_total_donations_by_id(self):
-        """get donations data"""
+
+    def get_total_donations_by_donors(self):
+        """get summary of all donation grouped by donor_id"""
         query = """
-        SELECT donation.donor_id, first_name, last_name, SUM(amount) AS total_donations
+        SELECT donation.donor_id, first_name, last_name, organization_name, SUM(amount) AS total_donations,
+        AVG(amount) AS average_donation, COUNT(donation_id) AS number_of_donations
         FROM donation 
         LEFT JOIN donor ON donation.donor_id=donor.donor_id 
         GROUP BY donation.donor_id 
         ;"""
-        self.cursor.execute(query)
-        tb = pandas.read_sql_query(query, self.connection)
+
+        try:
+            tb = pandas.read_sql_query(query, self.connection)
+            return tb.to_string()
+        except ImportError as e:
+            print(e)
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+    def get_donations_by_donor_name(self, name):
+        """Find all donations for a donor name"""
         
-        return tb.to_string()
-
-
-    def get_all(self,table):
-        return self.get_all_related_data(table).to_string()
-    def get_donor_info(self):
-        donor_info = self.get_all_related_data('donor')
-        name_city =donor_info[['first_name', 'city_name']]
-        return name_city.head()
+        first_name, last_name = name.split(' ')
+        data = self.add_join_clause('donation')
+        query = 'SELECT donation_date, donation_id, amount, source, donation.donor_id, event_name, project_name FROM donation'
+        query+= data['join_string']
+        query+= ' WHERE donor.first_name = ? AND donor.last_name = ? ORDER BY donation_date DESC'
+        return pandas.read_sql_query(
+            query, self.connection, params=[first_name.capitalize(), last_name.capitalize()])
+    
+    def get_donations_by_donor_id(self, id):
+        """Find all donations for a donor id"""
+        
+        data = self.add_join_clause('donation')
+        query = 'SELECT donation_date, donation_id, amount, source, event_name, project_name FROM donation'
+        query+= data['join_string']
+        query+= ' WHERE donor.donor_id = ? ORDER BY donation_date DESC'
+        return pandas.read_sql_query(query, self.connection, params=[id])
+    
+    def check_donation_allocation(self, id):
+        data = self.add_join_clause('donation_allocation')
+        query = """
+        SELECT donation.donation_id AS donation_id, donation_date, amount AS donation_amount, allocation_amount,
+        objective_name, project.project_name FROM donation_allocation """
+        query += data['join_string']
+        query += ' WHERE donation.donor_id = ?'
+        return pandas.read_sql_query(query, self.connection, params=[id])
+    def get_all_donors_info(self):
+        """Return all donors information"""
+        tbl = self.get_all('donor')
+        
+        try:
+            tbl.to_string()
+        except ImportError as e:
+            print(e)
+        return tbl
+    
+    def get_donor_by_name(self, name):
+        """Search donor details by name"""
+        first_name, last_name = name.split(' ')
+        data = self.add_join_clause('donor')
+        query = 'SELECT * FROM donor'
+        query += data['join_string']
+        query += ' WHERE first_name = ? AND last_name = ?'
+        try:
+            return pandas.read_sql_query(
+                query, self.connection, params=[first_name.capitalize(), last_name.capitalize()]).to_string()
+        except ImportError:
+            self.cursor.execute(query, (first_name.capitalize(), last_name.capitalize()))
+            return self.cursor.fetchall()
+    
     def insert_row_all_columns(self, table, values: tuple):
+        """Insert single records if all rows not empty."""
         columns = self.get_column_names(table)[1:]
         placeholders = ', '.join(['?' for _ in enumerate(columns)])
         query = f'INSERT INTO {table}({", ".join(columns)}) VALUES({placeholders});'
@@ -64,6 +114,7 @@ class Db_handler(Db_basic):
             print(e)
         
     def insert_many(self, table, data):
+        """insert many records when all rows are not empty"""
         columns = self.get_column_names(table)[1:]
         placeholders = ', '.join(['?' for _ in enumerate(columns)])
         query = f'INSERT INTO {table}({", ".join(columns)}) VALUES({placeholders});'

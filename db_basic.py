@@ -5,18 +5,20 @@ class Db_basic:
         self.db_path = db_path
         self.connection = sqlite3.connect(self.db_path)
         self.cursor = self.connection.cursor()
+        self.connection.execute("PRAGMA foreign_keys = ON")
     
 
-    def drop_table(self, table):        
+    def drop_table(self, table): 
+              
         self.cursor.execute(f'DROP TABLE IF EXISTS {table}')
         
     def create_table(self, table, values):
-        
+        self.connection.execute("PRAGMA foreign_keys = OFF")
         self.drop_table(table)
         query = f'CREATE TABLE {table} ({values});'
         self.cursor.execute(query)
         self.connection.commit()
-
+        self.connection.execute("PRAGMA foreign_keys = ON")
     def query_table_all(self, query, params):
         """Query table with parameters, fetch all results"""
         self.cursor.execute(query, params)
@@ -56,10 +58,12 @@ class Db_basic:
             print(e,f' while inserting into {table}')
     
     def get_table_names(self):
+        """return all table names in the database."""
         results = self.cursor.execute('SELECT DISTINCT tbl_name FROM sqlite_schema WHERE tbl_name != "sqlite_sequence";')        
         return results.fetchall()
 
     def get_column_names(self, table):
+        """return all column names in the table"""
         table_info = self.cursor.execute(f'PRAGMA table_info({table})')
         #use slicing to remove ID column
         return [column[1] for column in table_info.fetchall()]
@@ -67,13 +71,15 @@ class Db_basic:
     def get_by_id(self, table, id):
         """get record by ID"""
         query = f'SELECT * FROM {table} WHERE {table}_id = ?;'
-        self.cursor.execute(query, (id,))
+        
         
         try:
-            data = self.cursor.fetchall()
+            data=pandas.read_sql_query(query, self.connection, params=[id])
         except ImportError as e:
+            self.cursor.execute(query, (id,))
+            data = self.cursor.fetchall()
             print(e)
-        
+
         return data
     def __add_join_string(self, table, current_alias=None, used_aliases=None):
         """prepare JOIN statement recursively for all related tables"""
@@ -117,13 +123,29 @@ class Db_basic:
 
         return data
 
-    def get_all_related_data(self, table, limit=100):
-        data = self.__add_join_string(table)
-        #filter non id columns
-        filtered = [col for col in data['column_names'] if 'id' not in col]
+    def __get_all_related_data(self, table):
+        """get all related tables"""
+        data = self.__add_join_string(table)        
+        filtered = [col for col in data['column_names'] if 'id' not in col ] 
         query = f'SELECT {",".join(filtered)} FROM {table}'
-
         query += data['join_string']
-        query += f' LIMIT {limit}'
-        self.cursor.execute(query)
-        return pandas.read_sql_query(query, self.connection)
+        
+        try:
+            return pandas.read_sql_query(query, self.connection)
+        except ImportError:
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+        
+    def add_join_clause(self, table):
+        return self.__add_join_string(table)
+    def get_all(self,table):
+        return self.__get_all_related_data(table)
+    
+    def delete_record(self, table, record_id):
+        row_to_delete = self.get_by_id(table, record_id)
+        self.cursor.execute(f'DELETE FROM {table} WHERE {table}_id = ?', (record_id,))
+        self.connection.commit()
+        print( row_to_delete, ' removed from the table')
+        
+    
+    
