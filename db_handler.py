@@ -1,43 +1,14 @@
 import sqlite3
 import pandas
+from db_basic import Db_basic
 
-class Db_handler:
+class Db_handler(Db_basic):
     def __init__(self, db_path):
-        self.db_path = db_path
-        self.connection = sqlite3.connect(self.db_path)
-        self.cursor = self.connection.cursor()
-        
-           
-    def drop_table(self, table):        
-        self.cursor.execute(f'DROP TABLE IF EXISTS {table}')
-        
-    def create_table(self, table, values):
-        self.drop_table(table)
-        query = f'CREATE TABLE {table} ({values});'
-        self.cursor.execute(query)
-        self.connection.commit()
-        
-    def get_table_names(self):
-        results = self.cursor.execute('SELECT DISTINCT tbl_name FROM sqlite_schema WHERE tbl_name != "sqlite_sequence";')        
-        return results.fetchall()
-    
-    def get_column_names(self, table):
-        table_info = self.cursor.execute(f'PRAGMA table_info({table})')
-        #use slicing to remove ID column
-        return [column[1] for column in table_info.fetchall()]
-    
-    def get_by_id(self, table, id):
-        query = f'SELECT * FROM {table} WHERE {table}_id = ?;'
-        self.cursor.execute(query, (id,))
-        data = self.cursor.fetchall()
-        try:
-            val = pandas.DataFrame(data, columns=self.get_column_names(table)).to_string()
-        except ImportError as e:
-            print(e)
-            val = data
-        return val
-    
+        super().__init__(db_path)
+
+
     def get_by_column_value(self, table, column, value, opSign='=', numberOfRows='all'):
+        """view records based on one condition."""
         query = f'SELECT * FROM {table} WHERE {column} {opSign} ?;'
         self.cursor.execute(query, (value,))
         data = ''
@@ -57,7 +28,20 @@ class Db_handler:
             val = data
 
         return val
+    def get_donations_by_id(self, donor, args=None):
+        """get donations data"""
+        query = f"""
+        SELECT DISTINCT donation.donor_id, first_name, last_name, SUM(amount)
+        FROM donation 
+        LEFT JOIN donor ON donation.donor_id=donor.donor_id 
+        GROUP BY donation.donor_id HAVING donation.donor_id={donor}
+        ;"""
+        self.cursor.execute(query)
+        val = self.cursor.fetchall()
+        return pandas.DataFrame(val).to_string()
+    
     def add_join_string(self, table, current_alias=None, used_aliases=None):
+        """prepare JOIN statement recursively for all related tables"""
         # Set defaults for the root call.
         if current_alias is None:
             current_alias = table
@@ -98,17 +82,18 @@ class Db_handler:
                 
         return data
     
-    def get_all_related_data(self, table):
+    def get_all_related_data(self, table, limit=100):
         data = self.add_join_string(table)
         #filter non id columns
         filtered = [col for col in data['column_names'] if 'id' not in col]
         query = f'SELECT {",".join(filtered)} FROM {table}'
 
         query += data['join_string']
+        query += f' LIMIT {limit}'
         self.cursor.execute(query)
-        return pandas.DataFrame(self.cursor.fetchall(), columns=filtered)
-            
-    def insert_row(self, table, values):
+        return pandas.DataFrame(self.cursor.fetchall(), columns=filtered).to_string()
+
+    def insert_row_all_columns(self, table, values: tuple):
         columns = self.get_column_names(table)[1:]
         placeholders = ', '.join(['?' for _ in enumerate(columns)])
         query = f'INSERT INTO {table}({", ".join(columns)}) VALUES({placeholders});'
