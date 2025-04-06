@@ -28,71 +28,27 @@ class Db_handler(Db_basic):
             val = data
 
         return val
-    def get_donations_by_id(self, donor, args=None):
+    
+    def get_total_donations_by_id(self):
         """get donations data"""
-        query = f"""
-        SELECT DISTINCT donation.donor_id, first_name, last_name, SUM(amount)
+        query = """
+        SELECT donation.donor_id, first_name, last_name, SUM(amount) AS total_donations
         FROM donation 
         LEFT JOIN donor ON donation.donor_id=donor.donor_id 
-        GROUP BY donation.donor_id HAVING donation.donor_id={donor}
+        GROUP BY donation.donor_id 
         ;"""
         self.cursor.execute(query)
-        val = self.cursor.fetchall()
-        return pandas.DataFrame(val).to_string()
-    
-    def add_join_string(self, table, current_alias=None, used_aliases=None):
-        """prepare JOIN statement recursively for all related tables"""
-        # Set defaults for the root call.
-        if current_alias is None:
-            current_alias = table
-        if used_aliases is None:
-            used_aliases = {}
-            
-        data = {
-            'join_string': '',
-            'column_names': []
-        }
+        tb = pandas.read_sql_query(query, self.connection)
         
-        # Get and prefix column names with the current alias.
-        data['column_names'].extend([f"{current_alias}.{col}" for col in self.get_column_names(table)])
-        
-        fk_list = self.cursor.execute(f"PRAGMA foreign_key_list({table});").fetchall()
-        if fk_list:
-            for fk in fk_list:
-                parent_table = fk[2]  # foreign table name
-                # Determine the alias for the parent table.
-                if parent_table in used_aliases:
-                    used_aliases[parent_table] += 1
-                    parent_alias = f"{parent_table}_{used_aliases[parent_table]}"
-                else:
-                    used_aliases[parent_table] = 0  # first occurrence, use table name directly
-                    parent_alias = parent_table
-                    
-                # Build the join clause using the appropriate alias.
-                join_clause = f" LEFT JOIN {parent_table}"
-                if parent_alias != parent_table:
-                    join_clause += f" AS {parent_alias}"
-                join_clause += f" ON {parent_alias}.{fk[4]} = {current_alias}.{fk[3]}"
-                data['join_string'] += join_clause
-                
-                # Recursively add join strings from the parent table.
-                child_data = self.add_join_string(parent_table, current_alias=parent_alias, used_aliases=used_aliases)
-                data['join_string'] += child_data['join_string']
-                data['column_names'].extend(child_data['column_names'])
-                
-        return data
-    
-    def get_all_related_data(self, table, limit=100):
-        data = self.add_join_string(table)
-        #filter non id columns
-        filtered = [col for col in data['column_names'] if 'id' not in col]
-        query = f'SELECT {",".join(filtered)} FROM {table}'
+        return tb.to_string()
 
-        query += data['join_string']
-        query += f' LIMIT {limit}'
-        self.cursor.execute(query)
-        return pandas.DataFrame(self.cursor.fetchall(), columns=filtered).to_string()
 
+    def get_all(self,table):
+        return self.get_all_related_data(table).to_string()
+    def get_donor_info(self):
+        donor_info = self.get_all_related_data('donor')
+        name_city =donor_info[['first_name', 'city_name']]
+        return name_city.head()
     def insert_row_all_columns(self, table, values: tuple):
         columns = self.get_column_names(table)[1:]
         placeholders = ', '.join(['?' for _ in enumerate(columns)])
