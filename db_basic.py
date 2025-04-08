@@ -1,5 +1,8 @@
 import sqlite3
-import pandas
+try:
+    import pandas
+except ModuleNotFoundError as e:
+    print(e)
 class Db_basic:
     def __init__(self, db_path):
         self.db_path = db_path
@@ -77,7 +80,7 @@ class Db_basic:
         
         try:
             data=pandas.read_sql_query(query, self.connection, params=[id])
-        except ImportError as e:
+        except NameError as e:
             self.cursor.execute(query, (id,))
             data = self.cursor.fetchall()
             print(e)
@@ -135,7 +138,7 @@ class Db_basic:
         
         try:
             return pandas.read_sql_query(query, self.connection)
-        except ImportError:
+        except NameError:
             self.cursor.execute(query)
             return self.cursor.fetchall()
         

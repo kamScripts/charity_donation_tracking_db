@@ -1,8 +1,11 @@
 from data import uk_regions
-from faker import Faker
+try:
+    from faker import Faker
+except ModuleNotFoundError as e:
+    print(e)
 import random
 
-fake = Faker('en_GB')
+
 source = ['regular', 'one-time', 'event']
 
 # Charity Event Name Generator Words
@@ -45,6 +48,7 @@ def generate_objective_name():
     return f"{random.choice(project_actions)} {random.choice(cause_specific_words)} for {random.choice(beneficiaries)}"
 
 try:
+    fake = Faker('en_GB')
     location_data = [(fake.street_name(), fake.random_int(min=1, max=200),
                     fake.postcode(), fake.random_int(min=1, max=36)) for _ in range(1100)]
     individual_donors = [(fake.first_name(), fake.last_name(), fake.unique.phone_number(),f'{fake.random_int(min=2, max=49) * fake.random_digit()}{fake.email()}', fake.random_int(min=1, max=900), None) for _ in range(890)]
@@ -52,7 +56,7 @@ try:
 
     donations = [(float(fake.random_int(min=5, max=1000, step=5)), source[fake.random_int(min=0, max=2)], fake.date_between(start_date='-5y'),
                 fake.text(max_nb_chars=100, ext_word_list=['Ucen', 'Manchester', 'database', '3NF', '2NF', 'PK', 'FK', 'composite key' ]),
-                fake.random_int(min=1, max=500), None
+                fake.random_int(min=1, max=990), None
                 ) for _ in range(5000)]
     def setEventFk(tupl):
         if tupl[1] == 'event':
@@ -81,5 +85,6 @@ try:
         'donation': donations
         
     }
-except ImportError as e:
+except Exception as e:
     print(e)
+    db_data = {}

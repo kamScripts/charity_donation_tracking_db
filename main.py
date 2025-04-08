@@ -21,21 +21,25 @@ def create_db_and_fill(database: Db_handler ,create_statements,region_obj , tabl
             database.insert_row_all_columns('city', (city, i+1))
     for key, value in table_data.items():
         database.insert_many(key, value)
-        
+
 create_db_and_fill(db, tables, uk_regions, large_table)
 create_db_and_fill(db2, tables, uk_regions, small_table)
 
-#print(db.get_total_donations_by_donors())
-#print(db.get_all_donors_info().to_string())
-#print(db.get_donor_by_name('Jane Doe'))
+print(db.get_total_donations_by_all_donors())
+print(db.get_all_donors_info())
+print(db.get_donor_by_name('denise carroll'))
 
-#print(db.get_donations_by_donor_id(2))
-#print(db.check_donation_allocation(5))
-#print(db.get_all('event'))
-#print(db.get_donations_by_donor_name('john smith'))
-#print(db.get_by_column_value('project', 'project_name', 'Community Garden Initiative'))
-#print(db.get_column_names('donor'))
-#print(db.get_total_donations_by_donors())
-#print(db.get_donations_by_donor_name('sarah williams'))
-#db.update_records('donor', 5, ['first_name', 'last_name'], ('Kamil', 'Gebski'))
-#print(db.get_event_donations_summary(1))
+
+print(db.check_donation_allocation(5))
+print(db.get_all('event'))
+print(db.get_donations_by_donor_name('billy chapman'))
+print(db.get_by_column_value('project', 'project_name', 'Community Garden Initiative'))
+print(db.get_column_names('donor'))
+
+db.update_records('donor', 5, ['first_name', 'last_name'], ('Kamil', 'Gebski'))
+print(db.get_event_donations_summary(1))
+print(db.get_all_events_donations_summary())
+print(db.get_by_id('donor', 1))
+print(db.get_total_donations_by_donor_name('kamil gebski'))
+print(db.get_donations_by_donor_id(5))
+print(db.get_donor_by_name('kamil gebski'))
