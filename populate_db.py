@@ -1,3 +1,4 @@
+from data import uk_regions
 from faker import Faker
 import random
 
@@ -69,5 +70,10 @@ try:
                             ext_word_list=['Ucen', 'Manchester', 'database', '3NF', '2NF', 'PK', 'FK', 'composite key' ]),
                     fake.random_int(min=1, max=10)
                 ) for _ in range(50)]
+    db_data = {
+        'project': projects,
+        'objective': objectives,
+        
+    }
 except ImportError as e:
     print(e)

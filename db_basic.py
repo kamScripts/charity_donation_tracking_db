@@ -9,10 +9,12 @@ class Db_basic:
     
 
     def drop_table(self, table): 
-              
+        """Delete a table"""      
         self.cursor.execute(f'DROP TABLE IF EXISTS {table}')
         
     def create_table(self, table, values):
+        """Create a table"""
+        #  Foreign key constraints are turned off for the process of creating a table.
         self.connection.execute("PRAGMA foreign_keys = OFF")
         self.drop_table(table)
         query = f'CREATE TABLE {table} ({values});'
@@ -84,11 +86,12 @@ class Db_basic:
     def __add_join_string(self, table, current_alias=None, used_aliases=None):
         """prepare JOIN statement recursively for all related tables"""
         # Set defaults for the root call.
+        # Aliases are used to avoid ambiguous column names in a join statement.
         if current_alias is None:
             current_alias = table
         if used_aliases is None:
             used_aliases = {}
-            
+        # dictionary to store join statement and column names
         data = {
             'join_string': '',
             'column_names': []
@@ -125,8 +128,8 @@ class Db_basic:
 
     def __get_all_related_data(self, table):
         """get all related tables"""
-        data = self.__add_join_string(table)        
-        filtered = [col for col in data['column_names'] if 'id' not in col ] 
+        data = self.__add_join_string(table)
+        filtered = [col for col in data['column_names'] if 'id' not in col ]
         query = f'SELECT {",".join(filtered)} FROM {table}'
         query += data['join_string']
         
@@ -137,11 +140,14 @@ class Db_basic:
             return self.cursor.fetchall()
         
     def add_join_clause(self, table):
+        """Call to a private method"""
         return self.__add_join_string(table)
     def get_all(self,table):
+        """Call a private method"""
         return self.__get_all_related_data(table)
     
     def delete_record(self, table, record_id):
+        """delete row based on a record ID."""
         row_to_delete = self.get_by_id(table, record_id)
         try:
             self.cursor.execute(f'DELETE FROM {table} WHERE {table}_id = ?', (record_id,))
@@ -150,16 +156,26 @@ class Db_basic:
         except sqlite3.Error as e:
             print(e)
     def delete_donor(self, donor_id):
-        print(type(donor_id))
-        self.cursor.execute(f'DELETE FROM donation WHERE donor_id = ?', (donor_id,))
+        """Delete donations related with a donor then delete a donor."""
+        self.cursor.execute('DELETE FROM donation WHERE donor_id = ?', (donor_id,))
         self.connection.commit()
-        self.cursor.execute(f'DELETE FROM donor WHERE donor_id=?', (donor_id,))
+        self.cursor.execute('DELETE FROM donor WHERE donor_id=?', (donor_id,))
         self.connection.commit()
         print('Donor and all related donations removed')
     def delete_event(self, event_id):
-        
-        self.cursor.execute(f'DELETE FROM donation WHERE event_id = ?', (event_id,))
+        """Delete donations related to the donor then delete a donor"""
+        self.cursor.execute('DELETE FROM donation WHERE event_id = ?', (event_id,))
         self.connection.commit()
-        self.cursor.execute(f'DELETE FROM event WHERE event_id=?', (event_id,))
+        self.cursor.execute('DELETE FROM event WHERE event_id=?', (event_id,))
         self.connection.commit()
         print('Event and all related donations removed')
+    def update_records(self, table, id, fields: list, values: tuple):
+        """Update records"""
+        
+        setValue = ','.join([f"'{fields[i]}'= ? " for i in range(len(fields))])
+        try:
+            self.cursor.execute(f'UPDATE {table} SET {setValue} WHERE {table}_id = {id};', values)
+            self.connection.commit()
+            print('Record Updated successfully:\n', self.get_by_id(table, id))
+        except sqlite3.Error as e:
+            print(e)

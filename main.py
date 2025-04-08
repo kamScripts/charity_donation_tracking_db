@@ -7,9 +7,9 @@ from populate_small_table import sample_data
 
 db = Db_handler("charity.db")
 
-#for key, value in tables.items():    
-#    db.create_table(key, value)
-#    print(key, 'created')
+for key, value in tables.items():
+    db.create_table(key, value)
+    print(key, 'created')
 #populate region and city tables
 #for i, key in enumerate(uk_regions):
 #    db.insert_row_all_columns('region', (key,))
@@ -23,11 +23,11 @@ db = Db_handler("charity.db")
 #db.insert_many('event', events)
 #db.insert_many('donation', donations)
 
-#for key, value in sample_data.items():
-#    if key == 'region':
-#        db.insert_row_all_columns('region', sample_data['region'][0])
-#    else:
-#        db.insert_many(key, value)
+for key, value in sample_data.items():
+    if key == 'region':
+        db.insert_row_all_columns('region', sample_data['region'][0])
+    else:
+        db.insert_many(key, value)
 #print(db.get_total_donations_by_donors())
 #print(db.get_all_donors_info().to_string())
 #print(db.get_donor_by_name('Jane Doe'))
@@ -35,6 +35,10 @@ db = Db_handler("charity.db")
 #print(db.get_donations_by_donor_id(2))
 #print(db.check_donation_allocation(5))
 #print(db.get_all('event'))
-#print(db.get_donations_by_donor_name('john smith'))
-db.delete_event(1)
-db.delete_record('event', 2)
+print(db.get_donations_by_donor_name('john smith'))
+print(db.get_by_column_value('project', 'project_name', 'Community Garden Initiative'))
+print(db.get_column_names('donor'))
+print(db.get_total_donations_by_donors())
+print(db.get_donations_by_donor_name('sarah williams'))
+db.update_records('donor', 5, ['first_name', 'last_name'], ('Kamil', 'Gebski'))
+print(db.get_event_donations_summary(1))

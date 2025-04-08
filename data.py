@@ -9,11 +9,11 @@ tables = {
         event_id INTEGER,
         FOREIGN KEY(donor_id)
         REFERENCES donor(donor_id)
-            ON UPDATE RESTRICT
+            ON UPDATE CASCADE
             ON DELETE RESTRICT,
         FOREIGN KEY(event_id)
         REFERENCES event(event_id)
-            ON UPDATE RESTRICT
+            ON UPDATE CASCADE
             ON DELETE RESTRICT
     """,
     "region" : """

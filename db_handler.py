@@ -28,7 +28,26 @@ class Db_handler(Db_basic):
             val = data
 
         return val
-
+    def get_event_donations_summary(self, event_id):
+        """get summary of all events"""
+        data = self.add_join_clause('donation')
+        
+        query = """
+        SELECT donation.event_id, event_name, event_date, project_name, location.postcode,
+        event_cost, SUM(amount) AS donations_collected, COUNT(donation_ID) AS number_of_donations,
+        MAX(amount) AS Highest_donation, AVG(amount) AS Average_donation
+        FROM donation """
+        
+        query += data['join_string']
+        query +=' GROUP BY donation.event_id HAVING donation.event_id=?'
+        
+        try:
+            tb = pandas.read_sql_query(query, self.connection, params=[event_id])
+            return tb.to_string()
+        except ImportError as e:
+            print(e)
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
     def get_total_donations_by_donors(self):
         """get summary of all donation grouped by donor_id"""
         query = """
@@ -67,6 +86,7 @@ class Db_handler(Db_basic):
         return pandas.read_sql_query(query, self.connection, params=[id])
     
     def check_donation_allocation(self, id):
+        """Check on what donor's donations where spent."""
         data = self.add_join_clause('donation_allocation')
         query = """
         SELECT donation.donation_id AS donation_id, donation_date, amount AS donation_amount, allocation_amount,
@@ -99,7 +119,7 @@ class Db_handler(Db_basic):
             return self.cursor.fetchall()
     
     def insert_row_all_columns(self, table, values: tuple):
-        """Insert single records if all rows not empty."""
+        """Insert single records if all rows are not empty."""
         columns = self.get_column_names(table)[1:]
         placeholders = ', '.join(['?' for _ in enumerate(columns)])
         query = f'INSERT INTO {table}({", ".join(columns)}) VALUES({placeholders});'
