@@ -24,15 +24,21 @@ class Db_basic:
         self.cursor.execute(query)
         self.connection.commit()
         self.connection.execute("PRAGMA foreign_keys = ON")
-    def query_table_all(self, query, params):
+    def query_table_all(self, query, params=None):
         """Query table with parameters, fetch all results"""
-        self.cursor.execute(query, params)
+        if params:
+            self.cursor.execute(query, params)
+        else: 
+            self.cursor.execute(query)
         results = self.cursor.fetchall()
         return results
 
-    def query_table_one(self, query, params):
+    def query_table_one(self, query, params=None):
         """Query table with parameters, fetch all results"""
-        self.cursor.execute(query, params)
+        if params:
+            self.cursor.execute(query, params)
+        else: 
+            self.cursor.execute(query)
         results = self.cursor.fetchone()
         return results
 
@@ -61,6 +67,9 @@ class Db_basic:
             print(e)
         except sqlite3.IntegrityError as e:
             print(e,f' while inserting into {table}')
+    def get_last_row(self, table):
+        """return last row of the table"""
+        return self.query_table_one(f'SELECT * FROM {table} ORDER BY {table}_id DESC LIMIT 1;')
     
     def get_table_names(self):
         """return all table names in the database."""
@@ -129,25 +138,32 @@ class Db_basic:
 
         return data
 
-    def __get_all_related_data(self, table):
+    def __get_all_related_data(self, table, col=None, param=None):
         """get all related tables"""
         data = self.__add_join_string(table)
         filtered = [col for col in data['column_names'] if 'id' not in col ]
+        filtered.insert(0, data['column_names'][0])
         query = f'SELECT {",".join(filtered)} FROM {table}'
         query += data['join_string']
-        
-        try:
-            return pandas.read_sql_query(query, self.connection)
-        except NameError:
-            self.cursor.execute(query)
-            return self.cursor.fetchall()
-        
+        if not col or not param:
+            try:
+                return pandas.read_sql_query(query, self.connection)
+            except NameError:
+                self.cursor.execute(query)
+                return self.cursor.fetchall()
+        else:
+            query += f' WHERE {col}= ?'
+            try:
+                return pandas.read_sql_query(query, self.connection, params=[param])
+            except NameError:
+                self.cursor.execute(query, (param,))
+                return self.cursor.fetchall()
     def add_join_clause(self, table):
         """Call to a private method"""
         return self.__add_join_string(table)
-    def get_all(self,table):
+    def get_all(self,table, col= None, optional_param=None):
         """Call a private method"""
-        return self.__get_all_related_data(table)
+        return self.__get_all_related_data(table, col, optional_param)
     
     def delete_record(self, table, record_id):
         """delete row based on a record ID."""

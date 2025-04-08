@@ -175,13 +175,15 @@ class Db_handler(Db_basic):
         tbl = self.get_all('donor')
 
         try:
-            tbl.to_string()
+            return tbl.to_string()
         except NameError as e:
             print(e)
         except AttributeError as e:
             print(e)
-        return tbl
-
+            return tbl
+    def get_donor_by_id(self, id):
+        """Search the all data related to donor by ID """
+        return self.get_all('donor', 'donor_id', id)
     def get_donor_by_name(self, name):
         """Search donor details by name"""
         first_name, last_name = name.split(' ')
