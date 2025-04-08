@@ -47,8 +47,8 @@ def generate_objective_name():
 try:
     location_data = [(fake.street_name(), fake.random_int(min=1, max=200),
                     fake.postcode(), fake.random_int(min=1, max=36)) for _ in range(1100)]
-    individual_donors = [(fake.first_name(), fake.last_name(), fake.phone_number(),f'{fake.random_int(min=2, max=49) * fake.random_digit()}{fake.email()}', fake.random_int(min=1, max=900), None) for _ in range(890)]
-    organization_donors = [(fake.first_name(), fake.last_name(), fake.phone_number(), fake.company_email(), 901 + num, fake.company()) for num in range(100)]
+    individual_donors = [(fake.first_name(), fake.last_name(), fake.unique.phone_number(),f'{fake.random_int(min=2, max=49) * fake.random_digit()}{fake.email()}', fake.random_int(min=1, max=900), None) for _ in range(890)]
+    organization_donors = [(fake.first_name(), fake.last_name(), fake.unique.phone_number(), fake.company_email(), 901 + num, fake.company()) for num in range(100)]
 
     donations = [(float(fake.random_int(min=5, max=1000, step=5)), source[fake.random_int(min=0, max=2)], fake.date_between(start_date='-5y'),
                 fake.text(max_nb_chars=100, ext_word_list=['Ucen', 'Manchester', 'database', '3NF', '2NF', 'PK', 'FK', 'composite key' ]),
@@ -70,9 +70,15 @@ try:
                             ext_word_list=['Ucen', 'Manchester', 'database', '3NF', '2NF', 'PK', 'FK', 'composite key' ]),
                     fake.random_int(min=1, max=10)
                 ) for _ in range(50)]
+    donors = individual_donors + organization_donors
+    
     db_data = {
         'project': projects,
         'objective': objectives,
+        'location': location_data,
+        'donor': donors,
+        'event': events,
+        'donation': donations
         
     }
 except ImportError as e:

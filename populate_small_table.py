@@ -1,12 +1,4 @@
 sample_data = {
-    "region": [
-        ("Western Region",)
-    ],
-    
-    "city": [
-        ("Oakville", 1),
-        ("Riverdale", 1)
-    ],
     
     "location": [
         ("Maple Avenue", "123", "12345", 1),
