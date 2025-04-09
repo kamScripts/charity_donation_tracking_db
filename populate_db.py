@@ -7,7 +7,7 @@ from populate_small_table import sample_data
 import random
 
 
-source = ['regular', 'one-time', 'event']
+source = ["Credit Card", "Mobile App", "PayPal", "Bank Transfer"]
 
 # Charity Event Name Generator Words
 action_words = [

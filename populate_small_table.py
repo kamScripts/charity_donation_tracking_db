@@ -36,37 +36,37 @@ sample_data = {
         # John Smith's donations (5)
         (500.00, "Credit Card", "2025-01-10", "Monthly supporter", 1, None),
         (500.00, "Credit Card", "2025-02-10", "Monthly supporter", 1, None),
-        (1000.00, "Check", "2025-04-15", "At gala event", 1, 1),
+        (1000.00, "Mobile App", "2025-04-15", "At gala event", 1, 1),
         (500.00, "Credit Card", "2025-06-10", "Monthly supporter", 1, None),
         (750.00, "Mobile App", "2025-07-20", "Summer event donation", 1, 2),
         
         # Jane Doe's donations (5)
         (250.00, "PayPal", "2025-01-15", None, 2, None),
         (250.00, "PayPal", "2025-03-15", None, 2, None),
-        (1500.00, "Check", "2025-04-15", "Gala major donor", 2, 1),
+        (1500.00, "Mobile App", "2025-04-15", "Gala major donor", 2, 1),
         (250.00, "PayPal", "2025-06-15", None, 2, None),
         (500.00, "Mobile App", "2025-07-20", "Summer event", 2, 2),
         
         # Robert Johnson's donations (5)
-        (100.00, "Website", "2025-01-20", "First-time donor", 3, None),
-        (100.00, "Website", "2025-03-22", None, 3, None),
+        (100.00, "Credit Card", "2025-01-20", "First-time donor", 3, None),
+        (100.00, "Credit Card", "2025-03-22", None, 3, None),
         (750.00, "Credit Card", "2025-04-15", "Gala attendance", 3, 1),
-        (100.00, "Website", "2025-06-22", None, 3, None),
-        (300.00, "Cash", "2025-07-20", "Summer event donation", 3, 2),
+        (100.00, "Credit Card", "2025-06-22", None, 3, None),
+        (300.00, "Bank Transfer", "2025-07-20", "Summer event donation", 3, 2),
         
         # Sarah Williams's donations (5)
         (1000.00, "Bank Transfer", "2025-01-05", "Quarterly donation", 4, None),
         (200.00, "PayPal", "2025-03-15", "Extra contribution", 4, None),
-        (2000.00, "Check", "2025-04-15", "VIP Gala sponsor", 4, 1),
+        (2000.00, "Mobile App", "2025-04-15", "VIP Gala sponsor", 4, 1),
         (1000.00, "Bank Transfer", "2025-07-05", "Quarterly donation", 4, None),
         (1000.00, "Credit Card", "2025-07-20", "Summer event sponsor", 4, 2),
         
         # ACME Corporation's donations (5)
-        (5000.00, "Corporate Check", "2025-01-15", "Corporate sponsor", 5, None),
-        (500.00, "Electronic Transfer", "2025-03-15", "Monthly corporate gift", 5, None),
-        (10000.00, "Corporate Check", "2025-04-15", "Gala platinum sponsor", 5, 1),
-        (500.00, "Electronic Transfer", "2025-06-15", "Monthly corporate gift", 5, None),
-        (7500.00, "Corporate Check", "2025-07-20", "Summer event main sponsor", 5, 2)
+        (5000.00, "Mobile App", "2025-01-15", "Corporate sponsor", 5, None),
+        (500.00, "Bank Transfer", "2025-03-15", "Monthly corporate gift", 5, None),
+        (10000.00, "Mobile App", "2025-04-15", "Gala platinum sponsor", 5, 1),
+        (500.00, "Bank Transfer", "2025-06-15", "Monthly corporate gift", 5, None),
+        (7500.00, "Mobile App", "2025-07-20", "Summer event main sponsor", 5, 2)
     ],
     
     "donation_allocation": [

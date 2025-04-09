@@ -20,9 +20,11 @@ class Db_handler(Db_basic):
     def get_by_column_value(self, table, column, value, opSign='='):
         """view records based on one condition."""
 
-        query = f'SELECT * FROM {table} WHERE {column} {opSign} ?;'
+        query = f'SELECT * FROM {table} WHERE {column} {opSign} ?'
+        if 'date' in column:
+            query += f' ORDER BY {column};'
         return self.read_query(query, (value,))
-    
+
     def get_all_events_donations_summary(self):
         """get all events summary of all events"""
 
@@ -43,7 +45,7 @@ class Db_handler(Db_basic):
 
     def get_event_donations_summary(self, event_id):
         """get summary of single event"""
-        
+
         data = self.add_join_clause('donation')
         query = """
         SELECT donation.event_id, event_name, event_date, project_name, location.postcode,
@@ -69,7 +71,7 @@ class Db_handler(Db_basic):
         GROUP BY donor.donor_id 
         ;"""
         return self.read_query(query)
-    
+
     def get_total_donations_by_donor_name(self, name):
         """get summary of donor's donations"""
         
@@ -104,6 +106,7 @@ class Db_handler(Db_basic):
         except NameError as e:
             print(e)
             return self.cursor.execute(query, (first_name.capitalize(), last_name.capitalize()))
+    
     def get_donations_by_donor_id(self, id):
         """Find all donations for a donor id"""
 
@@ -142,14 +145,12 @@ class Db_handler(Db_basic):
         except AttributeError as e:
             print(e)
             individual = organizational = donors
-            
-        
+
         if donor_type == 'i':
             return individual
         if donor_type == 'o':
             return organizational
-        
-        
+
     def insert_row_all_columns(self, table, values: tuple):
         """Insert single records if all rows are not empty."""
         #slice column names to ommit id column

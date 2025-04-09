@@ -86,7 +86,6 @@ class Db_basic:
         query = f'SELECT * FROM {table} WHERE {table}_id = ?;'
         return self.read_query(query, (id,))
 
-        
     def __add_join_string(self, table, current_alias=None, used_aliases=None)->dict:
         """prepare JOIN statement recursively for all related tables"""
         # Set defaults for the initial call.
@@ -147,6 +146,7 @@ class Db_basic:
         return self.__add_join_string(table)
     def get_all(self,table:str, col:str=None, optional_param:tuple=None):
         """Call a private method - get the child and parent tables data"""
+        
         return self.__get_all_related_data(table, col, optional_param)
 
     def delete_record(self, table, record_id):
@@ -203,14 +203,17 @@ class Db_basic:
         self.cursor.execute(query)
         return self.cursor.fetchall()
     def print_result(self, result):
+    
         try:
             results= result.to_string(index=False)
             print(results)
         except AttributeError as e:
             print(e)
-            output =''
+            output ='|'
             for col in result:
                 for val in col:
                     output+= f'{val} '
-                output+='\n'
+                output+='|\n'
             print(output)        
+            
+            
