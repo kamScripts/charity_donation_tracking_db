@@ -28,6 +28,7 @@ tables = {
         UNIQUE(city_name, region_id),
         FOREIGN KEY(region_id)
         REFERENCES region(region_id)
+            ON DELETE SET NULL
     """,
     
     "location" : """
@@ -38,6 +39,7 @@ tables = {
         city_id INTEGER NOT NULL,
         FOREIGN KEY(city_id)
         REFERENCES city(city_id)
+            ON DELETE SET NULL
     """,
 
     "donor" : """
@@ -48,8 +50,10 @@ tables = {
         email TEXT UNIQUE,
         location_id INTEGER,
         organization_name TEXT,
-        FOREIGN KEY(location_id)
+        FOREIGN KEY(location_id)            
         REFERENCES location(location_id)
+            ON UPDATE CASCADE
+            ON DELETE SET NULL
     """,
     
     "project" : """
@@ -65,6 +69,7 @@ tables = {
         project_id INTEGER,
         FOREIGN KEY(project_id)
         REFERENCES project(project_id)
+            ON DELETE SET NULL
     """,
     
     "event" : """
@@ -75,9 +80,12 @@ tables = {
         event_date TEXT NOT NULL,
         project_id INTEGER,
         FOREIGN KEY(location_id)
-        REFERENCES location(location_id),
+        REFERENCES location(location_id)
+            ON DELETE SET NULL,
         FOREIGN KEY(project_id)
         REFERENCES project(project_id)
+            ON DELETE SET NULL
+
     """,
 
     "donation_allocation" : """
@@ -88,9 +96,11 @@ tables = {
         FOREIGN KEY(donation_id)
         REFERENCES donation(donation_id)
             ON UPDATE CASCADE
-            ON DELETE CASCADE,
+            ON DELETE SET NULL,
         FOREIGN KEY(objective_id)
         REFERENCES objective(objective_id)
+            ON DELETE SET NULL
+
     """
 }
 uk_regions = {

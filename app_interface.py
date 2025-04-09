@@ -1,4 +1,4 @@
-import sys
+
 from db_handler import Db_handler
 from populate_db import source
 ### add and check if args inside self.functions are correct
@@ -7,7 +7,7 @@ class DatabaseTerminalApp:
     def __init__(self, db: Db_handler):
         self.db = db
         self.running = True
-        self.d_source = source
+        self.d_source = source        
         self.main_menu = [
             "Donations Viewing",
             "Donors Viewing",
@@ -119,14 +119,158 @@ class DatabaseTerminalApp:
             ],
             3: [  # Database Management
                 {
-                    "name": "Get column names (donor)",
-                    "function": lambda: self.db.print_result(self.db.get_column_names('donor')),
-                    "args": []
+                    "name": "View table",
+                    "function": lambda table: self.db.print_result(self.db.get_all(table)),
+                    "args": [('Enter table name:', str)]
+                },
+                {
+                    "name": "insert new record",
+                    "function": lambda table: self.handle_insert(table),
+                    "args": [('Enter table name:', str),]
+                },
+                {
+                    "name": "Delete record",
+                    "function": lambda table, id: self.handle_delete(table, id),
+                    "args": [('Enter table name:', str),
+                             ('Enter id:', int)]
+                },
+                {
+                    "name": "Update record",
+                    "function": lambda table, id: self.handle_update(table, id),
+                    "args": [
+                                ("Enter table name: ", str),
+                                ("Enter ID: ", int)
+                            ]
                 }
             ]
+            
         }
-        
-        self.current_category = None
+    def handle_insert(self, table):
+        try:
+            # Get column names for the table
+            column_names = self.db.get_column_names(table)[1:]
+
+            if not column_names:
+                print(f"No columns found for table '{table}' or table does not exist.")
+                return
+
+            print(f"\nTable '{table}' has the following columns:")
+            print(", ".join(column_names))
+            print("\nEnter values for each column (leave empty to omit):")
+
+            # Collect columns and values
+            columns = []
+            values = []
+
+            for column in column_names:
+                value = input(f"{column}: ")
+                if value != "":  # Only include non-empty values
+                    columns.append(column)
+                    # Try to convert numeric values
+                    try:
+                        # Try to convert to int or float if appropriate
+                        if value.isdigit():
+                            value = int(value)
+                        elif value.replace('.', '', 1).isdigit() and value.count('.') <= 1:
+                            value = float(value)
+                    except:
+                        value   # Keep as string if conversion fails
+                    values.append(value)
+
+            if not columns:
+                print("No values provided. Insert cancelled.")
+                return
+
+            # Insert the row
+            self.db.insert_row(table, columns, values)
+            print(f"\nSuccessfully inserted new row into '{table}'.")
+
+        except Exception as e:
+            print(f"Error during insert operation: {e}")
+
+    def handle_delete(self, table, id):
+        prompt = "Confirm to delete a record (y / n): "
+        try:
+            row_to_delete = self.db.get_by_id(table, id)
+            if table == 'donor' or table == 'event':  # Changed '|' to 'or'
+                print(f'Deleting {table} will delete all related donations')
+                print('Row to delete: ', row_to_delete)
+                dec = input(prompt)
+                if dec.lower() == 'y':  # Fixed .lower (added parentheses)
+                    match(table):
+                        case 'donor':
+                            self.db.delete_donor(id)
+                        case 'event':
+                            self.db.delete_event(id)
+                    return
+            else:
+                print('Row to delete: ', row_to_delete)
+                dec = input(prompt)
+                if dec.lower() == 'y':
+                    self.db.delete_record(table, id)
+                return
+        except Exception as e:
+            print(f"Error during delete operation: {e}")
+
+    def handle_update(self, table, id):
+        """Handle the update of a record with dynamic columns."""
+        try:
+            # Get the record to be updated
+            record = self.db.get_by_id(table, id)
+            
+            # Check if the record exists by checking if the DataFrame is empty
+            if record is None or record.empty:
+                print(f"No record found with ID {id} in table '{table}'.")
+                return
+                
+            print(f"\nCurrent record: {record}")
+            
+            # Get column names for the table
+            column_names = self.db.get_column_names(table)
+            
+            if not column_names:
+                print(f"No columns found for table '{table}' or table does not exist.")
+                return
+            
+            print(f"\nTable '{table}' has the following columns:")
+            print(", ".join(column_names))
+            print("\nEnter new values for each column (leave empty to keep current value):")
+            
+            # Collect columns and values to update
+            columns = []
+            values = []
+            
+            for column in column_names:
+                if column.lower() == f'{table}_id':  # Skip ID column, it shouldn't be updated
+                    continue
+                    
+                value = input(f"{column}: ")
+                if value != "":  # Only include columns with new values
+                    columns.append(column)
+                    # Try to convert numeric values
+                    try:
+                        if value.isdigit():
+                            value = int(value)
+                        elif value.replace('.', '', 1).isdigit() and value.count('.') <= 1:
+                            value = float(value)
+                    except:
+                        pass  # Keep as string if conversion fails
+                    values.append(value)
+            
+            if not columns:
+                print("No values provided. Update cancelled.")
+                return
+            
+            # Convert values list to tuple as required by the function
+            values_tuple = tuple(values)
+            
+            # Update the record
+            self.db.update_records(table, id, columns, values_tuple)
+            print(f"\nSuccessfully updated record with ID {id} in '{table}'.")
+            
+        except Exception as e:
+            print(f"Error during update operation: {e}")
+
 
     def display_welcome(self):
         print("\n" + "=" * 50)
@@ -178,7 +322,8 @@ class DatabaseTerminalApp:
         
         func_info = self.category_functions[category_idx][func_idx]
         args = []
-        
+        if func_info['name'] == 'insert':
+            print('insert')
         for prompt, data_type in func_info["args"]:
             arg_value = self.get_user_input(prompt, data_type)
             if arg_value in ['q', 'b']:
