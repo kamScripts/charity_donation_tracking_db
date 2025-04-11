@@ -45,13 +45,14 @@ def add_donation_allocation(database: Db_handler):
     print('donations allocated')
 
 
-create_db_and_fill(db, tables, uk_regions, large_table)
-create_db_and_fill(db2, tables, uk_regions, small_table)
-add_donation_allocation(db)
+#create_db_and_fill(db, tables, uk_regions, large_table)
+#create_db_and_fill(db2, tables, uk_regions, small_table)
+#add_donation_allocation(db)
+#add_donation_allocation(db2)
 
 
 
 
 if __name__ == "__main__":
     main(db)
-    
+   

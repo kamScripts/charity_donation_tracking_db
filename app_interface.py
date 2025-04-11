@@ -98,7 +98,7 @@ class DatabaseTerminalApp:
                 {
                     "name": "View event donations summary",
                     "function": lambda event_id: self.db.print_result(self.db.get_event_donations_summary(event_id)),
-                    "args": [("event_id", "Enter event ID: ", int)]
+                    "args": [("Enter event ID: ", int)]
                 },
                 {
                     "name": "View all events donations summary",
@@ -107,7 +107,7 @@ class DatabaseTerminalApp:
                 },
                 {
                     "name": "View Projects",
-                    "function": lambda value: self.db.print_result(self.db.get_all('project')),
+                    "function": lambda: self.db.print_result(self.db.get_all('project')),
                     "args": []
                 },
                 {
@@ -322,8 +322,7 @@ class DatabaseTerminalApp:
         
         func_info = self.category_functions[category_idx][func_idx]
         args = []
-        if func_info['name'] == 'insert':
-            print('insert')
+        
         for prompt, data_type in func_info["args"]:
             arg_value = self.get_user_input(prompt, data_type)
             if arg_value in ['q', 'b']:

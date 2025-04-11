@@ -34,7 +34,7 @@ tables = {
     "location" : """
         location_id INTEGER PRIMARY KEY AUTOINCREMENT,
         street TEXT NOT NULL,
-        building_no TEXT,
+        building_no INTEGER NOT NULL,
         postcode TEXT NOT NULL,
         city_id INTEGER NOT NULL,
         FOREIGN KEY(city_id)
