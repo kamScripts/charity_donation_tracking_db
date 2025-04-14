@@ -65,8 +65,6 @@ try:
                 fake.text(max_nb_chars=100, ext_word_list=['Ucen', 'Manchester', 'database', '3NF', '2NF', 'PK', 'FK', 'composite key' ]),
                 fake.random_int(min=1, max=990), None
                 )) for _ in range(5000)]
-
-    donations = [setEventFk(donation) for donation in donations]
     projects = [(generate_project_name(), fake.random_int(min=100000, max=500000, step=50000)) for _ in range(10)]
     events = [(generate_event_name(), fake.random_int(min=1001, max=1100), fake.random_int(min=5000, max=10000),
             fake.date_between(start_date='-5y'), fake.random_int(min=1, max=10)) for _ in range(40)]

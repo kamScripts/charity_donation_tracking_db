@@ -28,7 +28,7 @@ class Db_basic:
         """Query table with parameters, fetch all results"""
         if params:
             self.cursor.execute(query, params)
-        else: 
+        else:
             self.cursor.execute(query)
         results = self.cursor.fetchall()
         return results
@@ -37,7 +37,7 @@ class Db_basic:
         """Query table with parameters, fetch all results"""
         if params:
             self.cursor.execute(query, params)
-        else: 
+        else:
             self.cursor.execute(query)
         results = self.cursor.fetchone()
         return results
@@ -70,7 +70,7 @@ class Db_basic:
     def get_last_row(self, table):
         """return last row of the table"""
         return self.query_table_one(f'SELECT * FROM {table} ORDER BY {table}_id DESC LIMIT 1;')
-    
+
     def get_table_names(self):
         """return all table names in the database."""
         results = self.cursor.execute('SELECT DISTINCT tbl_name FROM sqlite_schema WHERE tbl_name != "sqlite_sequence";')        
@@ -80,7 +80,7 @@ class Db_basic:
         """return all column names in the table"""
         table_info = self.cursor.execute(f'PRAGMA table_info({table})')        
         return [column[1] for column in table_info.fetchall()]
-    
+
     def get_by_id(self, table, id):
         """get record  of any table by ID"""
         query = f'SELECT * FROM {table} WHERE {table}_id = ?;'
@@ -133,6 +133,7 @@ class Db_basic:
         """get all related tables"""
         data = self.__add_join_string(table)
         filtered = [col for col in data['column_names'] if 'id' not in col ]
+        #add only child table id
         filtered.insert(0, data['column_names'][0])
         query = f'SELECT {",".join(filtered)} FROM {table}'
         query += data['join_string']
@@ -146,7 +147,7 @@ class Db_basic:
         return self.__add_join_string(table)
     def get_all(self,table:str, col:str=None, optional_param:tuple=None):
         """Call a private method - get the child and parent tables data"""
-        
+       
         return self.__get_all_related_data(table, col, optional_param)
 
     def delete_record(self, table, record_id):
@@ -192,7 +193,7 @@ class Db_basic:
             except NameError as e:
                 print(e)
                 self.cursor.execute(query, params)
-                return self.cursor.fetchall()    
+                return self.cursor.fetchall()
         try:
             df = pandas.read_sql_query(query, self.connection)
             return df
@@ -202,18 +203,18 @@ class Db_basic:
             print(e)
         self.cursor.execute(query)
         return self.cursor.fetchall()
+
     def print_result(self, result):
-    
+
         try:
             results= result.to_string(index=False)
             print(results)
         except AttributeError as e:
             print(e)
-            output ='|'
+            output =''
             for col in result:
                 for val in col:
                     output+= f'{val} '
                 output+='|\n'
-            print(output)        
-            
-            
+            print(output)
+

@@ -9,6 +9,11 @@ from app_interface import main
 db = Db_handler("charity.db")
 db2 = Db_handler("small_table.db")
 
+def create_db(database: Db_handler, create_statements):
+    """Create empty database"""
+    for key, value in create_statements.items():
+        database.create_table(key, value)
+        print(key, 'created')
 
 def create_db_and_fill(database: Db_handler ,create_statements,region_obj , table_data):
     """Create tables and insert data"""
@@ -30,7 +35,7 @@ def add_donation_allocation(database: Db_handler):
     allocations = []
     randoms = []
     for _ in range(math.floor(last_donation / 2)):
-        rand = random.randint(1, last_donation)        
+        rand = random.randint(1, last_donation)
         if rand not in randoms:
             donation =  database.query_table_one(
                 'SELECT * FROM donation WHERE donation_id = ?',
@@ -45,10 +50,9 @@ def add_donation_allocation(database: Db_handler):
     print('donations allocated')
 
 
-#create_db_and_fill(db, tables, uk_regions, large_table)
-#create_db_and_fill(db2, tables, uk_regions, small_table)
-#add_donation_allocation(db)
-#add_donation_allocation(db2)
+create_db_and_fill(db, tables, uk_regions, large_table)
+add_donation_allocation(db)
+
 
 
 

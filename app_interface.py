@@ -7,7 +7,7 @@ class DatabaseTerminalApp:
     def __init__(self, db: Db_handler):
         self.db = db
         self.running = True
-        self.d_source = source        
+        self.d_source = source
         self.main_menu = [
             "Donations Viewing",
             "Donors Viewing",
@@ -120,7 +120,7 @@ class DatabaseTerminalApp:
             3: [  # Database Management
                 {
                     "name": "View table",
-                    "function": lambda table: self.db.print_result(self.db.get_all(table)),
+                    "function": lambda table: self.db.print_result(self.db.read_query(f'SELECT * FROM {table};')),
                     "args": [('Enter table name:', str)]
                 },
                 {

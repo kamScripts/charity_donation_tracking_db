@@ -142,18 +142,19 @@ class Db_handler(Db_basic):
         try:
             individual = donors.loc[:, donors.columns!='organization_name']
             organizational = self.get_all('donor')[donors['organization_name'].notna()]
+            if donor_type == 'i':
+                return individual
+            if donor_type == 'o':
+                return organizational
         except AttributeError as e:
             print(e)
-            individual = organizational = donors
+            return donors
 
-        if donor_type == 'i':
-            return individual
-        if donor_type == 'o':
-            return organizational
+        
 
     def insert_row_all_columns(self, table, values: tuple):
         """Insert single records if all rows are not empty."""
-        #slice column names to ommit id column
+        #slice column names to omit id column
         columns = self.get_column_names(table)[1:]
         placeholders = ', '.join(['?' for _ in enumerate(columns)])
         query = f'INSERT INTO {table}({", ".join(columns)}) VALUES({placeholders});'
