@@ -1,4 +1,5 @@
 import sqlite3
+import re
 try:
     import pandas
 except ModuleNotFoundError as e:
@@ -73,7 +74,7 @@ class Db_basic:
 
     def get_table_names(self):
         """return all table names in the database."""
-        results = self.cursor.execute('SELECT DISTINCT tbl_name FROM sqlite_schema WHERE tbl_name != "sqlite_sequence";')        
+        results = self.cursor.execute('SELECT DISTINCT tbl_name FROM sqlite_schema WHERE tbl_name != "sqlite_sequence";')
         return results.fetchall()
 
     def get_column_names(self, table):
@@ -146,8 +147,10 @@ class Db_basic:
         """Call to a private method"""
         return self.__add_join_string(table)
     def get_all(self,table:str, col:str=None, optional_param:tuple=None):
-        """Call a private method - get the child and parent tables data"""
-       
+        """Call a private method - get the child and parent tables data
+        Col = column_name, param = column_value, for
+        adding to query WHERE col = param"""
+
         return self.__get_all_related_data(table, col, optional_param)
 
     def delete_record(self, table, record_id):
@@ -186,35 +189,62 @@ class Db_basic:
     def read_query(self, query:str, params:tuple=None):
         """Read query and return Pandas DataFrame or tuple if Pandas module
            not detected """
+        #Extract table name from SELECT statement for case when pandas not installed
+        
+        try:         
+            col_match = re.search(r'SELECT\s+(.*?)\s+FROM', query, re.IGNORECASE)
+            # Get the column part and split by commas
+            columns_str = col_match.group(1)
+            # Handle cases like "col1, col2 as alias, col3"
+            columns = [col.strip().split(' AS ')[-1].strip() for col in columns_str.split(',')]
+            # Remove any backticks or quotes from column names
+            columns = [col.strip('`"\'') for col in columns]
+            
+        except (AttributeError, IndexError):
+            columns = []
         if params:
             try:
                 df = pandas.read_sql_query(query, self.connection, index_col=None,params=params)
                 return df
             except NameError as e:
                 print(e)
+
                 self.cursor.execute(query, params)
-                return self.cursor.fetchall()
+                return (columns, self.cursor.fetchall())
         try:
             df = pandas.read_sql_query(query, self.connection)
             return df
-        except NameError as e:
+        except (NameError, AttributeError)as e:
             print(e)
-        except AttributeError as e:
-            print(e)
+
+
         self.cursor.execute(query)
-        return self.cursor.fetchall()
+        return (columns, self.cursor.fetchall())
 
     def print_result(self, result):
 
         try:
             results= result.to_string(index=False)
             print(results)
-        except AttributeError as e:
+        except (AttributeError, NameError)as e:
             print(e)
-            output =''
-            for col in result:
-                for val in col:
-                    output+= f'{val} '
-                output+='|\n'
-            print(output)
+        output =' '
+        try:
+            header = '| '.join(result[0])
+            line = '-'* len(header)
+            output += header
+            output += '\n'
+            output += line
+            output += '\n'
+            
+        except (sqlite3.Error, AttributeError):
+            print(e)
+            
+        
+        for col in result[1]:
+            for  i, val in enumerate(col):
+                value =  f'{val}'
+                output +=f'{value.center(len(result[0][i]))}'
+            output+='|\n'
+        print(output)
 

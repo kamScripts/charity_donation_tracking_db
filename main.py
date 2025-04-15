@@ -46,13 +46,13 @@ def create_db_and_fill(database: Db_handler ,create_statements,region_obj , tabl
         print('donations allocated')
 
 
-create_db_and_fill(db, tables, uk_regions, large_table)
+#create_db_and_fill(db, tables, uk_regions, large_table)
+
+
+db.print_result(db.get_all('donor', 'donor_id', (1,)))
 
 
 
-
-
-
-if __name__ == "__main__":
-    main(db)
+#if __name__ == "__main__":
+#    main(db)
    
