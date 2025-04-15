@@ -141,7 +141,8 @@ class DatabaseTerminalApp:
                                 ("Enter table name: ", str),
                                 ("Enter ID: ", int)
                             ]
-                }
+                },
+                
             ]
             
         }
@@ -171,10 +172,12 @@ class DatabaseTerminalApp:
                         # Try to convert to int or float if appropriate
                         if value.isdigit():
                             value = int(value)
+                        #remove the first decimal point from the string and checks if the resulting string contains only digits.
+                        #
                         elif value.replace('.', '', 1).isdigit() and value.count('.') <= 1:
                             value = float(value)
-                    except:
-                        value   # Keep as string if conversion fails
+                    except ValueError:
+                        pass   # Keep as string if conversion fails
                     values.append(value)
 
             if not columns:
@@ -192,11 +195,11 @@ class DatabaseTerminalApp:
         prompt = "Confirm to delete a record (y / n): "
         try:
             row_to_delete = self.db.get_by_id(table, id)
-            if table == 'donor' or table == 'event':  # Changed '|' to 'or'
+            if table == 'donor' or table == 'event':
                 print(f'Deleting {table} will delete all related donations')
                 print('Row to delete: ', row_to_delete)
                 dec = input(prompt)
-                if dec.lower() == 'y':  # Fixed .lower (added parentheses)
+                if dec.lower() == 'y':
                     match(table):
                         case 'donor':
                             self.db.delete_donor(id)
@@ -253,7 +256,7 @@ class DatabaseTerminalApp:
                             value = int(value)
                         elif value.replace('.', '', 1).isdigit() and value.count('.') <= 1:
                             value = float(value)
-                    except:
+                    except ValueError:
                         pass  # Keep as string if conversion fails
                     values.append(value)
             
@@ -274,7 +277,7 @@ class DatabaseTerminalApp:
 
     def display_welcome(self):
         print("\n" + "=" * 50)
-        print("WELCOME TO DATABASE MANAGEMENT SYSTEM".center(50))
+        print("WELCOME TO CHARITY DONATION TRACKING SYSTEM 1.0".center(50))
         print("=" * 50)
 
     def display_main_menu(self):
@@ -304,9 +307,9 @@ class DatabaseTerminalApp:
             try:
                 user_input = input(prompt)
                 # Handle navigation commands
-                if user_input.lower() in ['q', 'b', 'r']:
+                if user_input.lower() in ['q', 'b']:
                     return user_input.lower()
-                
+
                 # Special case for optional input (like empty string for get_all_donors)
                 if data_type == str and user_input == "":
                     return ""
@@ -335,11 +338,11 @@ class DatabaseTerminalApp:
             func_info["function"](*args)
             print("-" * 50)
             input("\nPress Enter to continue...")
-            return None
+            return
         except Exception as e:
             print(f"Error executing function: {e}")
             input("\nPress Enter to continue...")
-            return None
+            return
 
     def handle_category_menu(self, category_idx):
         while True:
@@ -349,7 +352,7 @@ class DatabaseTerminalApp:
             if choice == 'q':
                 self.running = False
                 return
-            elif choice == 'b':
+            if choice == 'b':
                 return
             
             try:
@@ -358,27 +361,27 @@ class DatabaseTerminalApp:
                 if result == 'q':
                     self.running = False
                     return
-                elif result == 'b':
+                if result == 'b':
                     return
             except ValueError:
                 print("Invalid input. Please enter a number, 'b' to go back, or 'q' to quit.")
 
     def run(self):
         self.display_welcome()
-        
+
         while self.running:
             self.display_main_menu()
             choice = self.get_user_input("Enter your choice: ", str)
-            
             if choice == 'q':
                 break
-            
             try:
                 category_idx = int(choice) - 1
                 if 0 <= category_idx < len(self.main_menu):
                     self.handle_category_menu(category_idx)
                 else:
-                    print("Invalid category. Please select a number between 1 and", len(self.main_menu))
+                    print(
+                        "Invalid category. Please select a number between 1 and",
+                        len(self.main_menu))
             except ValueError:
                 print("Invalid input. Please enter a number or 'q' to quit.")
                 print("Invalid input. Please enter a number or 'q' to quit.")
@@ -388,6 +391,4 @@ def main(db):
     app = DatabaseTerminalApp(db)
     app.run()
     print("\nThank you for using the Database Management System.")
-
-
 
