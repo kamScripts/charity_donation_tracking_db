@@ -8,6 +8,7 @@ class DatabaseTerminalApp:
         self.db = db
         self.running = True
         self.d_source = source
+        self.table_names = ', '.join([' '.join(col) for col in self.db.get_table_names()])
         self.main_menu = [
             "Donations Viewing",
             "Donors Viewing",
@@ -80,7 +81,7 @@ class DatabaseTerminalApp:
                 {
                     "name": "View donor, search by name",
                     "function": lambda name: self.db.print_result(self.db.get_donor_by_name(name)),
-                    "args": [("Enter donor name: ", str)]
+                    "args": [("Enter donor name:", str)]
                 },
                 {
                     "name": "View donor, search by ID",
@@ -121,12 +122,12 @@ class DatabaseTerminalApp:
                 {
                     "name": "View table",
                     "function": lambda table: self.db.print_result(self.db.read_query(f'SELECT * FROM {table};')),
-                    "args": [('Enter table name:', str)]
+                    "args": [(f'Enter table name\n({self.table_names}):', str)]
                 },
                 {
                     "name": "Search by ID",
                     "function": lambda table, id: self.db.print_result(self.db.get_by_id(table, id)),
-                    "args": [('Enter table name:', str),
+                    "args": [(f'Enter table name\n({self.table_names}):', str),
                              ('Enter ID:', int)]
                 },
                 {
@@ -192,7 +193,7 @@ class DatabaseTerminalApp:
 
             # Insert the row
             self.db.insert_row(table, columns, values)
-            print(f"\nSuccessfully inserted new row into '{table}'.")
+            
 
         except Exception as e:
             print(f"Error during insert operation: {e}")
