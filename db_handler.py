@@ -132,11 +132,14 @@ class Db_handler(Db_basic):
         """Search donor details by name"""
         first_name, last_name = name.split(' ')
         data = self.add_join_clause('donor')
-        query = 'SELECT * FROM donor'
+        filtered = [col for col in data['column_names'] if 'id' not in col ]
+        #add only child table id
+        filtered.insert(0, data['column_names'][0])
+        query = f'SELECT {",".join(filtered)} FROM donor'
         query += data['join_string']
-        query += ' WHERE first_name = ? AND last_name = ?'
+        query += ' WHERE first_name = ? AND last_name = ?;'
         return self.read_query(query, (first_name.capitalize(), last_name.capitalize()))
-    def get_all_donors(self, donor_type:str): 
+    def get_all_donors(self, donor_type:str):
         """Return donors by type i for individual, o for organization"""       
         donors = self.get_all('donor')
         try:

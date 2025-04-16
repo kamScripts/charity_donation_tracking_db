@@ -190,16 +190,15 @@ class Db_basic:
         """Read query and return Pandas DataFrame or tuple if Pandas module
            not detected """
         #Extract table name from SELECT statement for case when pandas not installed
-        
-        try:         
-            col_match = re.search(r'SELECT\s+(.*?)\s+FROM', query, re.IGNORECASE)
+        try:
+            query_oneline = query.replace('\n', ' ')
+            col_match = re.search(r'SELECT\s+(.*?)\s+FROM', query_oneline, re.IGNORECASE)
             # Get the column part and split by commas
             columns_str = col_match.group(1)
             # Handle cases like "col1, col2 as alias, col3"
             columns = [col.strip().split(' AS ')[-1].strip() for col in columns_str.split(',')]
             # Remove any backticks or quotes from column names
             columns = [col.strip('`"\'') for col in columns]
-            
         except (AttributeError, IndexError):
             columns = []
         if params:
@@ -222,29 +221,53 @@ class Db_basic:
         return (columns, self.cursor.fetchall())
 
     def print_result(self, result):
-
         try:
-            results= result.to_string(index=False)
+            # Try pandas DataFrame first
+            results = result.to_string(index=False)
             print(results)
-        except (AttributeError, NameError)as e:
+            return
+        except (AttributeError, NameError) as e:
             print(e)
-        output =' '
-        try:
-            header = '| '.join(result[0])
-            line = '-'* len(header)
-            output += header
-            output += '\n'
-            output += line
-            output += '\n'
-            
-        except (sqlite3.Error, AttributeError):
-            print(e)
-            
         
-        for col in result[1]:
-            for  i, val in enumerate(col):
-                value =  f'{val}'
-                output +=f'{value.center(len(result[0][i]))}'
-            output+='|\n'
-        print(output)
-
+        if len(result[0]) <= 1:
+            print(result[1])
+        try:
+            print(result[0])
+            # Get column names and data
+            if isinstance(result, tuple) and len(result) == 2:
+                col_names = result[0]
+                data = result[1]
+                
+                # If no data returned
+                if not data:
+                    print("No data found")
+                    return
+                
+                # Calculate column widths based on column names and data
+                col_widths = [len(str(name)) for name in col_names]
+                
+                for row in data:
+                    for i, val in enumerate(row):
+                        if i < len(col_widths):  # Ensure to don't go out of bounds
+                            str_val = str(val)
+                            # Update width if this value is longer
+                            col_widths[i] = max(col_widths[i], len(str_val))
+                
+                # Generate header row with proper spacing
+                header = " | ".join(str(name).center(col_widths[i]) for i, name in enumerate(col_names))
+                separator = "-" * len(header)
+                
+                print(header)
+                print(separator)
+                
+                # Print data rows with proper alignment
+                for row in data:
+                    row_str = " | ".join(str(val).center(col_widths[i]) for i, val in enumerate(row) if i < len(col_widths))
+                    print(row_str)
+            else:
+                # Handle unexpected format
+                print("Unexpected result format")
+        except Exception as e:
+            print(f"Error formatting results: {e}")
+            # Fallback to simple output
+            print(result)
