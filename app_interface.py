@@ -124,6 +124,12 @@ class DatabaseTerminalApp:
                     "args": [('Enter table name:', str)]
                 },
                 {
+                    "name": "Search by ID",
+                    "function": lambda table, id: self.db.print_result(self.db.get_by_id(table, id)),
+                    "args": [('Enter table name:', str),
+                             ('Enter ID:', int)]
+                },
+                {
                     "name": "insert new record",
                     "function": lambda table: self.handle_insert(table),
                     "args": [('Enter table name:', str),]

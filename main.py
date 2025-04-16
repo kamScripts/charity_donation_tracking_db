@@ -16,7 +16,7 @@ def create_db_and_fill(database: Db_handler ,create_statements,region_obj , tabl
         for key, value in create_statements.items():
             database.create_table(key, value)
             print(key, 'created')
-        
+
     add_data = input('Do you want to add test data (y / n) ?')
     if add_data.lower() == 'y':
         region_names =map(lambda x: (x,), list(region_obj.keys()))
@@ -27,6 +27,7 @@ def create_db_and_fill(database: Db_handler ,create_statements,region_obj , tabl
                 database.insert_row_all_columns('city', (city, i+1))
         for key, value in table_data.items():
             database.insert_many(key, value)
+        #add to donation_allocation
         last_donation =  database.get_last_row('donation')[0]
         last_objective = database.get_last_row('objective')[0]
         allocations = []
@@ -46,7 +47,7 @@ def create_db_and_fill(database: Db_handler ,create_statements,region_obj , tabl
         print('donations allocated')
 
 
-#create_db_and_fill(db, tables, uk_regions, large_table)
+create_db_and_fill(db, tables, uk_regions, large_table)
 
 
 
