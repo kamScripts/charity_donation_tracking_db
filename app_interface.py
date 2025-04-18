@@ -358,6 +358,7 @@ class DatabaseTerminalApp:
             
             if choice == 'q':
                 self.running = False
+                self.db.connection.close()
                 return
             if choice == 'b':
                 return
@@ -367,6 +368,7 @@ class DatabaseTerminalApp:
                 result = self.execute_function(category_idx, func_idx)
                 if result == 'q':
                     self.running = False
+                    self.db.connection.close()
                     return
                 if result == 'b':
                     return

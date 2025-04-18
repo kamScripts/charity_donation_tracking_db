@@ -68,6 +68,7 @@ class Db_basic:
             print(e)
         except sqlite3.IntegrityError as e:
             print(e,f' while inserting into {table}')
+            
     def get_last_row(self, table):
         """return last row of the table"""
         return self.query_table_one(f'SELECT * FROM {table} ORDER BY {table}_id DESC LIMIT 1;')
@@ -79,7 +80,7 @@ class Db_basic:
 
     def get_column_names(self, table):
         """return all column names in the table"""
-        table_info = self.cursor.execute(f'PRAGMA table_info({table})')        
+        table_info = self.cursor.execute(f'PRAGMA table_info({table})')
         return [column[1] for column in table_info.fetchall()]
 
     def get_by_id(self, table, id):
@@ -191,8 +192,9 @@ class Db_basic:
            not detected """
         #Extract table name from SELECT statement for case when pandas not installed
         try:
-            query_oneline = query.replace('\n', ' ')
-            col_match = re.search(r'SELECT\s+(.*?)\s+FROM', query_oneline, re.IGNORECASE)
+            #handle query with multi-line string
+            query_one_line = query.replace('\n', ' ')
+            col_match = re.search(r'SELECT\s+(.*?)\s+FROM', query_one_line, re.IGNORECASE)
             # Get the column part and split by commas
             columns_str = col_match.group(1)
             # Handle cases like "col1, col2 as alias, col3"
@@ -207,7 +209,6 @@ class Db_basic:
                 return df
             except NameError as e:
                 print(e)
-
                 self.cursor.execute(query, params)
                 return (columns, self.cursor.fetchall())
         try:
@@ -232,7 +233,6 @@ class Db_basic:
         if len(result[0]) <= 1:
             print(result[1])
         try:
-            print(result[0])
             # Get column names and data
             if isinstance(result, tuple) and len(result) == 2:
                 col_names = result[0]

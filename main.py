@@ -2,17 +2,15 @@ import random
 import math
 from db_handler import Db_handler
 from data import tables, uk_regions
-from populate_small_table import sample_data as small_table
 from populate_db import db_data as large_table
 from app_interface import main
 
 db = Db_handler("charity.db")
-db2 = Db_handler("small_table.db")
 
 def create_db_and_fill(database: Db_handler ,create_statements,region_obj , table_data):
-    """Create tables and insert mock data"""
+    """Create tables and insert test records"""
     add_data = input('Do you want to create new database (y / n) ?')
-    if add_data.lower() == 'y':  
+    if add_data.lower() == 'y':
         for key, value in create_statements.items():
             database.create_table(key, value)
             print(key, 'created')
@@ -55,4 +53,3 @@ create_db_and_fill(db, tables, uk_regions, large_table)
 
 if __name__ == "__main__":
     main(db)
-   
