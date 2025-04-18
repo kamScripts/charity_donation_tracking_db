@@ -179,14 +179,16 @@ class Db_basic:
         print('Event and all related donations removed')
     def update_records(self, table, id, fields: list, values: tuple):
         """Update records"""
-        
-        setValue = ','.join([f"'{fields[i]}'= ? " for i in range(len(fields))])
+
+        set_clause = ', '.join([f"{field} = ?" for field in fields])
+        sql = f"UPDATE {table} SET {set_clause} WHERE {table}_id = ?"
+
         try:
-            self.cursor.execute(f'UPDATE {table} SET {setValue} WHERE {table}_id = {id};', values)
+            self.cursor.execute(sql, values + (id,))
             self.connection.commit()
-            print('Record Updated successfully:\n', self.get_by_id(table, id))
+            print('Record updated successfully:\n', self.get_by_id(table, id))
         except sqlite3.Error as e:
-            print(e)
+            print(f"SQLite error: {e}")
     def read_query(self, query:str, params:tuple=None):
         """Read query and return Pandas DataFrame or tuple if Pandas module
            not detected """
