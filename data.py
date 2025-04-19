@@ -49,7 +49,7 @@ tables = {
         phone_number TEXT UNIQUE,
         email TEXT UNIQUE,
         location_id INTEGER,
-        organization_name TEXT,
+        organization_name TEXT UNIQUE,
         FOREIGN KEY(location_id)            
         REFERENCES location(location_id)
             ON UPDATE CASCADE

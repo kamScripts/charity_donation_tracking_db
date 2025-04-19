@@ -163,6 +163,7 @@ class Db_basic:
             print( row_to_delete, ' removed from the table')
         except sqlite3.Error as e:
             print(e)
+            
     def delete_donor(self, donor_id):
         """Delete donations related with a donor then delete a donor."""
         self.cursor.execute('DELETE FROM donation WHERE donor_id = ?', (donor_id,))
@@ -170,6 +171,7 @@ class Db_basic:
         self.cursor.execute('DELETE FROM donor WHERE donor_id=?', (donor_id,))
         self.connection.commit()
         print('Donor and all related donations removed')
+        
     def delete_event(self, event_id):
         """Delete donations related to the donor then delete a donor"""
         self.cursor.execute('DELETE FROM donation WHERE event_id = ?', (event_id,))
@@ -177,6 +179,7 @@ class Db_basic:
         self.cursor.execute('DELETE FROM event WHERE event_id=?', (event_id,))
         self.connection.commit()
         print('Event and all related donations removed')
+
     def update_records(self, table, id, fields: list, values: tuple):
         """Update records"""
 
@@ -189,6 +192,7 @@ class Db_basic:
             print('Record updated successfully:\n', self.get_by_id(table, id))
         except sqlite3.Error as e:
             print(f"SQLite error: {e}")
+            
     def read_query(self, query:str, params:tuple=None):
         """Read query and return Pandas DataFrame or tuple if Pandas module
            not detected """
